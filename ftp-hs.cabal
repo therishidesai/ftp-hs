@@ -1,0 +1,33 @@
+name: ftp-hs
+version: 0.0.0.1
+license: MIT
+license-file: LICENSE
+author: Rishi Desai
+maintainer: Rishi Desai <desai.rishi1@gmail.com>
+synopsis: An ftp server
+category: Network
+cabal-version: >= 1.6
+build-type: Simple
+
+flag threaded
+  default: False
+
+executable ftp-hs
+  hs-source-dirs: src
+  main-is: Server.hs
+  build-depends: base >= 4.2 && < 5
+                 , bytestring
+                 , network
+
+  if flag(threaded)
+     ghc-options: -threaded
+
+executable ftp-hs-client
+  hs-source-dirs: src
+  main-is: Client.hs
+  build-depends: base >= 4.2 && < 5
+                 , bytestring
+                 , network
+
+  if flag(threaded)
+     ghc-options: -threaded
