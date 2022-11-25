@@ -18,6 +18,8 @@ executable ftp-hs
   build-depends: base >= 4.2 && < 5
                  , bytestring
                  , network
+                 , binary
+                 , text
 
   if flag(threaded)
      ghc-options: -threaded
@@ -28,6 +30,7 @@ executable ftp-hs-client
   build-depends: base >= 4.2 && < 5
                  , bytestring
                  , network
+                 , binary
 
   if flag(threaded)
      ghc-options: -threaded

@@ -1,25 +1,34 @@
--- Echo server program
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE OverloadedStrings #-}
 module Main (main) where
 
+import Data.Binary
 import Control.Concurrent (forkFinally)
 import qualified Control.Exception as E
 import Control.Monad (unless, forever, void)
-import qualified Data.ByteString as S
-import qualified Data.ByteString.Char8 as C
+import qualified Data.ByteString.Lazy as S
 import Network.Socket
-import Network.Socket.ByteString (recv, sendAll)
+import Network.Socket.ByteString.Lazy (recv, sendAll)
+import qualified Network.Socket.ByteString as NB
+
+import GHC.Generics (Generic)
+
+
+data Message = Msg { header :: String,  body :: String }
+              deriving (Binary, Generic, Show)
 
 main :: IO ()
 main = runTCPServer Nothing "3000" talk
   where
     talk s = do
         msg <- recv s 1024
-        C.putStrLn msg
+        let b = decode msg :: Message
+        putStrLn $ "Decode: " ++ show b
         unless (S.null msg) $ do
           sendAll s msg
           talk s
 
--- from the "network-run" package.
 runTCPServer :: Maybe HostName -> ServiceName -> (Socket -> IO a) -> IO a
 runTCPServer mhost port server = withSocketsDo $ do
     addr <- resolve

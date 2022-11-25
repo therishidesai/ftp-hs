@@ -1,18 +1,26 @@
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE OverloadedStrings #-}
--- Echo client program
 module Main (main) where
 
+import Data.Binary
 import qualified Control.Exception as E
-import qualified Data.ByteString.Char8 as C
 import Network.Socket
-import Network.Socket.ByteString (recv, sendAll)
+import Network.Socket.ByteString.Lazy (recv, sendAll)
+
+import GHC.Generics (Generic)
+
+
+data Message = Msg { header :: String,  body :: String }
+              deriving (Binary, Generic, Show)
 
 main :: IO ()
 main = runTCPClient "127.0.0.1" "3000" $ \s -> do
-    sendAll s "Hello, world!"
+    let b = encode (Msg { header = "header", body = "body" })
+    sendAll s b
     msg <- recv s 1024
-    putStr "Received: "
-    C.putStrLn msg
+    let b1 = decode msg :: Message
+    putStrLn $ "Decode: " ++ show b1
 
 -- from the "network-run" package.
 runTCPClient :: HostName -> ServiceName -> (Socket -> IO a) -> IO a
